@@ -2,7 +2,7 @@
 import { cn } from "@/utils";
 import { useVoice } from "@humeai/voice-react";
 import Expressions from "./Expressions";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ComponentRef, forwardRef } from "react";
 
 const Messages = forwardRef<
@@ -14,7 +14,7 @@ const Messages = forwardRef<
   return (
     <motion.div
       layoutScroll
-      className={"grow overflow-auto p-4 pt-24"}
+      className={"grow rounded-md overflow-auto p-4"}
       ref={ref}
     >
       <motion.div
@@ -32,8 +32,8 @@ const Messages = forwardRef<
                   className={cn(
                     "w-[80%]",
                     "bg-card",
-                    "border border-border rounded-xl",
-                    msg.type === "user_message" ? "ml-auto" : ""
+                    "border border-border rounded",
+                    msg.type === "user_message" ? "ml-auto" : "",
                   )}
                   initial={{
                     opacity: 0,
@@ -48,28 +48,15 @@ const Messages = forwardRef<
                     y: 0,
                   }}
                 >
-                  <div className={"flex items-center justify-between pt-4 px-3"}>
-                    <div
-                      className={cn(
-                        "text-xs capitalize font-medium leading-none opacity-50 tracking-tight"
-                      )}
-                    >
-                      {msg.message.role}
-                    </div>
-                    <div
-                      className={cn(
-                        "text-xs capitalize font-medium leading-none opacity-50 tracking-tight"
-                      )}
-                    >
-                      {msg.receivedAt.toLocaleTimeString(undefined, {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        second: undefined,
-                      })}
-                    </div>
+                  <div
+                    className={cn(
+                      "text-xs capitalize font-medium leading-none opacity-50 pt-4 px-3",
+                    )}
+                  >
+                    {msg.message.role}
                   </div>
                   <div className={"pb-3 px-3"}>{msg.message.content}</div>
-                  <Expressions values={{ ...msg.models.prosody?.scores }} />
+                  <Expressions values={msg.models.prosody?.scores} />
                 </motion.div>
               );
             }

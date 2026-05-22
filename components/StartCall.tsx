@@ -1,17 +1,39 @@
-import { useVoice } from "@humeai/voice-react";
-import { AnimatePresence, motion } from "motion/react";
+import { ConnectOptions, useVoice } from "@humeai/voice-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "./ui/button";
 import { Phone } from "lucide-react";
-import { toast } from "sonner";
+import type { Hume } from "hume";
 
-export default function StartCall({ configId, accessToken }: { configId?: string, accessToken: string }) {
+type StartCallProps = (
+  | { accessToken: string; apiKey?: never }
+  | { apiKey: string; accessToken?: never }
+) & {
+  sessionSettings?: Hume.empathicVoice.SessionSettings;
+};
+
+export default function StartCall({
+  accessToken,
+  apiKey,
+  sessionSettings,
+}: StartCallProps) {
   const { status, connect } = useVoice();
+
+  const EVI_CONNECT_OPTIONS: ConnectOptions = {
+    auth:
+      apiKey != null
+        ? { type: "apiKey", value: apiKey }
+        : { type: "accessToken", value: accessToken! },
+    ...(sessionSettings != null && { sessionSettings }),
+    // configId: "<YOUR_CONFIG_ID>"
+  };
 
   return (
     <AnimatePresence>
       {status.value !== "connected" ? (
         <motion.div
-          className={"fixed inset-0 p-4 flex items-center justify-center bg-background"}
+          className={
+            "fixed inset-0 p-4 flex items-center justify-center bg-background"
+          }
           initial="initial"
           animate="enter"
           exit="exit"
@@ -30,25 +52,19 @@ export default function StartCall({ configId, accessToken }: { configId?: string
               }}
             >
               <Button
-                className={"z-50 flex items-center gap-1.5 rounded-full"}
+                className={"z-50 flex items-center gap-1.5"}
                 onClick={() => {
-                  connect({ 
-                    auth: { type: "accessToken", value: accessToken },
-                    configId, 
-                    // additional options can be added here
-                    // like resumedChatGroupId and sessionSettings
-                  })
+                  connect(EVI_CONNECT_OPTIONS)
                     .then(() => {})
-                    .catch(() => {
-                      toast.error("Unable to start call");
-                    })
+                    .catch(() => {})
                     .finally(() => {});
                 }}
               >
                 <span>
                   <Phone
-                    className={"size-4 opacity-50 fill-current"}
-                    strokeWidth={0}
+                    className={"size-4 opacity-50"}
+                    strokeWidth={2}
+                    stroke={"currentColor"}
                   />
                 </span>
                 <span>Start Call</span>
