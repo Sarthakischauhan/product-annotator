@@ -1,20 +1,24 @@
-import { getHumeAccessToken } from "@/utils/getHumeAccessToken";
-import dynamic from "next/dynamic";
+import { fetchAccessToken } from "hume";
+import ChatLoader from "@/components/ChatLoader";
 
-const Chat = dynamic(() => import("@/components/Chat"), {
-  ssr: false,
-});
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function Page() {
-  const accessToken = await getHumeAccessToken();
-
-  if (!accessToken) {
-    throw new Error('Unable to get access token');
+  if (!process.env.HUME_API_KEY) {
+    throw new Error("The HUME_API_KEY environment variable is not set.");
   }
+  if (!process.env.HUME_SECRET_KEY) {
+    throw new Error("The HUME_SECRET_KEY environment variable is not set.");
+  }
+  const accessToken = await fetchAccessToken({
+    apiKey: String(process.env.HUME_API_KEY),
+    secretKey: String(process.env.HUME_SECRET_KEY),
+  });
 
   return (
     <div className={"grow flex flex-col"}>
-      <Chat accessToken={accessToken} />
+      <ChatLoader accessToken={accessToken} />
     </div>
   );
 }

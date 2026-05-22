@@ -1,53 +1,56 @@
 "use client";
 
 import { VoiceProvider } from "@humeai/voice-react";
-import Messages from "./Messages";
-import Controls from "./Controls";
-import StartCall from "./StartCall";
 import { ComponentRef, useRef } from "react";
-import { toast } from "sonner";
+import { setLlmKeyForChat } from "@/app/actions/set-llm-key";
+import { recordVoiceEvent } from "@/utils/e2e-hooks";
+import type { Hume } from "hume";
+import Messages from "./Messages";
+import ProductReviewWorkspace from "./ProductReviewWorkspace";
+
+type ChatProps = (
+  | { accessToken: string; apiKey?: never }
+  | { apiKey: string; accessToken?: never }
+) & {
+  sessionSettings?: Hume.empathicVoice.SessionSettings;
+};
 
 export default function ClientComponent({
   accessToken,
-}: {
-  accessToken: string;
-}) {
+  apiKey,
+  sessionSettings,
+}: ChatProps) {
   const timeout = useRef<number | null>(null);
   const ref = useRef<ComponentRef<typeof Messages> | null>(null);
 
-  // optional: use configId from environment variable
-  const configId = process.env['NEXT_PUBLIC_HUME_CONFIG_ID'];
-  
   return (
-    <div
-      className={
-        "relative grow flex flex-col mx-auto w-full overflow-hidden h-[0px]"
-      }
-    >
+    <div className="relative flex min-h-0 grow flex-col overflow-hidden">
       <VoiceProvider
-        onMessage={() => {
+        onMessage={async (msg) => {
+          recordVoiceEvent(msg);
           if (timeout.current) {
             window.clearTimeout(timeout.current);
           }
 
           timeout.current = window.setTimeout(() => {
             if (ref.current) {
-              const scrollHeight = ref.current.scrollHeight;
-
               ref.current.scrollTo({
-                top: scrollHeight,
+                top: ref.current.scrollHeight,
                 behavior: "smooth",
               });
             }
           }, 200);
-        }}
-        onError={(error) => {
-          toast.error(error.message);
+
+          if (msg.type === "chat_metadata" && msg.chatId) {
+            await setLlmKeyForChat(msg.chatId);
+          }
         }}
       >
-        <Messages ref={ref} />
-        <Controls />
-        <StartCall configId={configId} accessToken={accessToken} />
+        <ProductReviewWorkspace
+          {...(apiKey != null ? { apiKey } : { accessToken: accessToken! })}
+          messageRef={ref}
+          sessionSettings={sessionSettings}
+        />
       </VoiceProvider>
     </div>
   );
