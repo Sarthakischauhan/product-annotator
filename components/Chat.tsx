@@ -1,13 +1,12 @@
 "use client";
 
 import { VoiceProvider } from "@humeai/voice-react";
-import Messages from "./Messages";
-import Controls from "./Controls";
-import StartCall from "./StartCall";
 import { ComponentRef, useRef } from "react";
 import { setLlmKeyForChat } from "@/app/actions/set-llm-key";
 import { recordVoiceEvent } from "@/utils/e2e-hooks";
 import type { Hume } from "hume";
+import Messages from "./Messages";
+import ProductReviewWorkspace from "./ProductReviewWorkspace";
 
 type ChatProps = (
   | { accessToken: string; apiKey?: never }
@@ -25,11 +24,7 @@ export default function ClientComponent({
   const ref = useRef<ComponentRef<typeof Messages> | null>(null);
 
   return (
-    <div
-      className={
-        "relative grow flex flex-col mx-auto w-full overflow-hidden h-[0px]"
-      }
-    >
+    <div className="relative flex min-h-0 grow flex-col overflow-hidden">
       <VoiceProvider
         onMessage={async (msg) => {
           recordVoiceEvent(msg);
@@ -51,12 +46,9 @@ export default function ClientComponent({
           }
         }}
       >
-        <Messages ref={ref} />
-        <Controls />
-        <StartCall
-          {...(apiKey != null
-            ? { apiKey }
-            : { accessToken: accessToken! })}
+        <ProductReviewWorkspace
+          {...(apiKey != null ? { apiKey } : { accessToken: accessToken! })}
+          messageRef={ref}
           sessionSettings={sessionSettings}
         />
       </VoiceProvider>

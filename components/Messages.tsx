@@ -14,13 +14,19 @@ const Messages = forwardRef<
   return (
     <motion.div
       layoutScroll
-      className={"grow rounded-md overflow-auto p-4"}
+      className={"min-h-0 grow overflow-auto px-4 py-5"}
       ref={ref}
     >
       <motion.div
-        className={"max-w-2xl mx-auto w-full flex flex-col gap-4 pb-24"}
+        className={"mx-auto flex w-full max-w-2xl flex-col gap-3"}
       >
         <AnimatePresence mode={"popLayout"}>
+          {messages.length === 0 ? (
+            <div className="border border-dashed border-border bg-muted p-5 text-sm leading-6 text-muted-foreground">
+              Start the review call to capture customer reactions, objections,
+              feature requests, and product notes here.
+            </div>
+          ) : null}
           {messages.map((msg, index) => {
             if (
               msg.type === "user_message" ||
@@ -30,9 +36,10 @@ const Messages = forwardRef<
                 <motion.div
                   key={msg.type + index}
                   className={cn(
-                    "w-[80%]",
+                    "w-[88%]",
                     "bg-card",
-                    "border border-border rounded",
+                    "border border-border",
+                    "shadow-sm",
                     msg.type === "user_message" ? "ml-auto" : "",
                   )}
                   initial={{
@@ -50,12 +57,14 @@ const Messages = forwardRef<
                 >
                   <div
                     className={cn(
-                      "text-xs capitalize font-medium leading-none opacity-50 pt-4 px-3",
+                      "px-4 pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground",
                     )}
                   >
                     {msg.message.role}
                   </div>
-                  <div className={"pb-3 px-3"}>{msg.message.content}</div>
+                  <div className={"px-4 pb-4 pt-2 text-sm leading-6 text-card-foreground"}>
+                    {msg.message.content}
+                  </div>
                   <Expressions values={msg.models.prosody?.scores} />
                 </motion.div>
               );

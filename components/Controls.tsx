@@ -34,8 +34,7 @@ export default function Controls() {
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 w-full p-4 flex items-center justify-center",
-        "bg-gradient-to-t from-card via-card/90 to-card/0",
+        "flex min-h-12 items-center justify-center",
       )}
     >
       <AnimatePresence>
@@ -54,7 +53,7 @@ export default function Controls() {
               opacity: 0,
             }}
             className={
-              "p-4 bg-card border border-border rounded-lg shadow-sm flex items-center gap-4"
+              "flex items-center gap-3 border border-border bg-card p-3 shadow-sm"
             }
           >
             <Toggle
@@ -74,7 +73,7 @@ export default function Controls() {
               )}
             </Toggle>
 
-            <div className={"relative grid h-8 w-48 shrink grow-0"}>
+            <div className={"relative grid h-8 w-36 shrink grow-0 sm:w-48"}>
               <MicFFT fft={micFft} className={"fill-current"} />
             </div>
 
@@ -90,7 +89,7 @@ export default function Controls() {
                   stroke={"currentColor"}
                 />
               </span>
-              <span>End Call</span>
+              <span>End</span>
             </Button>
           </motion.div>
         ) : null}
